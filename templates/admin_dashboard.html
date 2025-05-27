@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - Qnnotate Jobs{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <h2>Admin Dashboard</h2>
+    
+    <div class="dashboard-actions">
+        <a href="{{ url_for('create_task') }}" class="btn btn-primary">Create New Task</a>
+        <a href="{{ url_for('create_user') }}" class="btn btn-secondary">Create New User</a>
+    </div>
+
+    <div class="dashboard-section">
+        <h3>Tasks</h3>
+        <div class="tasks-grid">
+            {% for task in tasks %}
+            <div class="task-card">
+                <h4>{{ task.title }}</h4>
+                <p>{{ task.description[:100] }}...</p>
+                <div class="task-status status-{{ task.status }}">{{ task.status.title() }}</div>
+                <div class="task-actions">
+                    <a href="{{ url_for('admin_task_details', task_id=task.id) }}" class="btn btn-small">View Details</a>
+                    <a href="{{ url_for('edit_task', task_id=task.id) }}" class="btn btn-small">Edit</a>
+                    {% if task.status == 'assigned' %}
+                    <a href="{{ url_for('complete_task', task_id=task.id) }}" class="btn btn-success btn-small">Mark Complete</a>
+                    {% endif %}
+                    <a href="{{ url_for('delete_task', task_id=task.id) }}" class="btn btn-danger btn-small" onclick="return confirm('Are you sure?')">Delete</a>
+                </div>
+            </div>
+            {% else %}
+            <p>No tasks created yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="dashboard-section">
+        <h3>Users</h3>
+        <div class="users-grid">
+            {% for user in users %}
+            <div class="user-card">
+                <h4>{{ user.username }}</h4>
+                <p class="earnings">Total Earnings: ${{ "%.2f"|format(user.total_earnings) }}</p>
+                <p class="join-date">Joined: {{ user.created_at.strftime('%Y-%m-%d') }}</p>
+            </div>
+            {% else %}
+            <p>No users created yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

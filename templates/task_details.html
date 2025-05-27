@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Task Details - Qnnotate Jobs{% endblock %}
+
+{% block content %}
+<div class="task-details">
+    <div class="task-header">
+        <h2>{{ task.title }}</h2>
+        <div class="task-status status-{{ task.status }}">{{ task.status.title() }}</div>
+    </div>
+    
+    <div class="task-description">
+        <h3>Description</h3>
+        <p>{{ task.description }}</p>
+    </div>
+
+    {% if task.assigned_user %}
+    <div class="assigned-info">
+        <h3>Assignment Details</h3>
+        <p><strong>Assigned to:</strong> {{ task.assigned_user.username }}</p>
+        <p><strong>Winning Bid:</strong> ${{ "%.2f"|format(task.winning_bid_amount) }}</p>
+    </div>
+    {% endif %}
+
+    <div class="bids-section">
+        <h3>Bids Received</h3>
+        {% if bids %}
+        <div class="bids-list">
+            {% for bid in bids %}
+            <div class="bid-item {% if bid.is_selected %}selected-bid{% endif %}">
+                <div class="bid-info">
+                    <strong>{{ bid.user.username }}</strong>
+                    <span class="bid-amount">${{ "%.2f"|format(bid.amount) }}</span>
+                    <span class="bid-date">{{ bid.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                </div>
+                {% if is_admin and task.status == 'open' and not bid.is_selected %}
+                <div class="bid-actions">
+                    <a href="{{ url_for('assign_task', task_id=task.id, bid_id=bid.id) }}" 
+                       class="btn btn-success btn-small">Select This Bid</a>
+                </div>
+                {% endif %}
+                {% if bid.is_selected %}
+                <div class="selected-indicator">Selected</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p>No bids received yet.</p>
+        {% endif %}
+    </div>
+
+    <div class="task-actions">
+        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+    </div>
+</div>
+{% endblock %}

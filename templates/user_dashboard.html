@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}User Dashboard - Qnnotate Jobs{% endblock %}
+
+{% block content %}
+<div class="user-dashboard">
+    <div class="user-header">
+        <h2>Welcome, {{ user.username }}!</h2>
+        <div class="earnings-display">
+            <h3>Total Earnings</h3>
+            <div class="earnings-amount">${{ "%.2f"|format(user.total_earnings) }}</div>
+        </div>
+    </div>
+
+    <div class="dashboard-section">
+        <h3>Available Jobs</h3>
+        <div class="jobs-grid">
+            {% for task in tasks %}
+            <div class="job-card">
+                <h4>{{ task.title }}</h4>
+                <p>{{ task.description }}</p>
+                <div class="job-actions">
+                    <form method="POST" action="{{ url_for('place_bid', task_id=task.id) }}" class="bid-form">
+                        <div class="bid-input">
+                            <label for="amount_{{ task.id }}">Your Bid ($):</label>
+                            <input type="number" step="0.01" min="0.01" id="amount_{{ task.id }}" name="amount" 
+                                   value="{% for bid in user_bids %}{% if bid.task_id == task.id %}{{ bid.amount }}{% endif %}{% endfor %}" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            {% set has_bid = False %}
+                            {% for bid in user_bids %}
+                                {% if bid.task_id == task.id %}
+                                    {% set has_bid = True %}
+                                    Update Bid
+                                {% endif %}
+                            {% endfor %}
+                            {% if not has_bid %}Place Bid{% endif %}
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% else %}
+            <p>No jobs available at the moment.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="dashboard-section">
+        <h3>Your Bids</h3>
+        <div class="bids-list">
+            {% for bid in user_bids %}
+            <div class="bid-item">
+                <h4>{{ bid.task.title }}</h4>
+                <p>Your Bid: ${{ "%.2f"|format(bid.amount) }}</p>
+                <div class="bid-status">
+                    {% if bid.task.status == 'open' %}
+                        <span class="status-open">Pending</span>
+                    {% elif bid.task.status == 'assigned' and bid.is_selected %}
+                        <span class="status-assigned">Selected</span>
+                    {% elif bid.task.status == 'completed' and bid.is_selected %}
+                        <span class="status-completed">Completed - Paid</span>
+                    {% else %}
+                        <span class="status-rejected">Not Selected</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% else %}
+            <p>You haven't placed any bids yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
