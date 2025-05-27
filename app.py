@@ -18,7 +18,7 @@ def create_tables():
 
 @app.route('/')
 def index():
-    return redirect(url_for('admin_login'))
+    return redirect(url_for('user_login'))
 
 @app.route('/admin/login', methods=['GET', 'POST'])
 def admin_login():
